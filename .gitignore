@@ -1,0 +1,5 @@
+build/
+C77_AGENDA_GFX_preview.png
+.DS_Store
+__pycache__/
+*.pyc
