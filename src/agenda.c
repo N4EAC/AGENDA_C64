@@ -237,29 +237,23 @@ static void modal(const char* title) {
 static void wait_key(void) { while(!kbhit()); cgetc(); }
 
 static unsigned char input_field(unsigned char x,unsigned char y,char* out,unsigned char max) {
-    unsigned char len=0,k,display;
+    unsigned char len=0,k,stored,display;
     fill(x,y,max,1,32,LTGREY);
     while(1) {
         cell((unsigned char)(x+len),y,GL_MARK,YELLOW);
         k=cgetc();
-        if(k==13) { out[len]=0; return len; }
+        if(k==0x0d || k==0x8d || k==0x0a || k==0x8a) { out[len]=0; return len; }
         if(k==27) { out[0]=0; return 0; }
         if((k==20 || k==8) && len) { --len; cell(x+len,y,32,LTGREY); }
         else {
-            /* C64 keyboards produce PETSCII $c1-$da for one letter case.
-               Store normalized ASCII so display and disk data remain stable. */
-            if(k>=0xc1 && k<=0xda) k=(unsigned char)(k-0x80);
-            if(k>='a' && k<='z') k=(unsigned char)(k-32);
-            if(k>='A' && k<='Z' && len<max) {
-                /* PETSCII/ASCII A-Z is $41-$5a, but VIC screen A-Z is $01-$1a. */
-                display=(unsigned char)(k-'A'+1);
-                out[len]=(char)k;
-                cell((unsigned char)(x+len),y,display,YELLOW);
-                ++len;
-            }
-            else if(k>=32 && k<127 && len<max) {
-                display=k;
-                out[len]=(char)k;
+            /* Use numeric values: cc65 target character literals are PETSCII. */
+            display=0; stored=0;
+            if(k>=0x41 && k<=0x5a) { display=(unsigned char)(k-0x40); stored=k; }
+            else if(k>=0x61 && k<=0x7a) { display=(unsigned char)(k-0x60); stored=(unsigned char)(k-0x20); }
+            else if(k>=0xc1 && k<=0xda) { display=(unsigned char)(k-0xc0); stored=(unsigned char)(k-0x80); }
+            else if(k>=0x20 && k<=0x3f) { display=k; stored=k; }
+            if(display && len<max) {
+                out[len]=(char)stored;
                 cell((unsigned char)(x+len),y,display,YELLOW);
                 ++len;
             }
