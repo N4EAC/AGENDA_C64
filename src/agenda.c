@@ -432,6 +432,7 @@ static void title_screen(void) {
     bm_color(5,17,30,2,PURPLE); bm_line(40,142,279,142,1); bm_line(56,151,264,151,1);
     for(x=48;x<280;x+=12) { bm_dot(x,137,1); bm_dot(x+4,158,1); }
     bm_text(8,19,"COMMODORE C77 // UNIT 64",0);
+    bm_text(7,21,"BY EDUARDO A. DE CARVALHO",0);
     bm_text(7,23,"PRESS ANY KEY TO INITIALIZE",0);
     screen_beep(); wait_key();
 }
