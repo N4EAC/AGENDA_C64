@@ -10,7 +10,7 @@ relocated custom character set for dialogs, and direct VIC-II drawing.
 
 Version 3.0 adds a Night City terminal opening screen, industrial case
 plates, vents, badges, a red CYBERAGENDA wordmark, US federal holidays,
-separate diary notes, incremental redraws, and brief SID interface beeps.
+incremental redraws, and brief SID interface beeps.
 
 QUICK START ON C64 ULTIMATE
 ---------------------------
@@ -28,7 +28,6 @@ CONTROLS
 Joystick port 2 or cursor keys  Move the selected date
 Fire or RETURN                   Inspect the selected date
 A                                Add an appointment
-J                                View, add, or delete diary notes
 D                                Delete the first appointment on the date
 S                                Save AGENDA.DAT
 T                                Set today/current date
@@ -40,18 +39,16 @@ Inside the selected-date panel, press A to add an appointment directly to
 that date. Holiday dates show the federal holiday title in this panel.
 
 Red date numbers identify calculated US federal holidays. Red markers are
-appointments, cyan dots are diary notes, and orange markers mean both are
-present. The right-side equipment plate shows the active date, holiday,
-diary count, and appointment data.
+appointments. The right-side equipment plate shows the active date,
+holiday, and appointment data.
 
 DATA AND COMPATIBILITY
 ----------------------
-Appointments and diary records are stored separately inside AGENDA.DAT.
-The extended line-based format loads existing Agenda files; diary records
-are appended after the original appointment section.
+Appointments are stored inside AGENDA.DAT using the original line-based
+event format.
 Up to 60 appointments are retained; descriptions are capped at 28
 characters by the data format and at 24 characters by the graphical input
-dialog so they fit the panel layout. Up to 39 diary notes are retained.
+dialog so they fit the panel layout.
 
 The program targets the standard C64 KERNAL, VIC-II, CIA joystick port,
 1541-compatible sequential files, and normal 64 KB memory map. It is

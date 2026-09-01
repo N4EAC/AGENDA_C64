@@ -4,7 +4,7 @@ A graphical calendar and appointment organizer for the Commodore 64,
 styled as a yellow-and-black C77 cyberpunk interface.
 
 Version 3.0 uses a 320x200 hires bitmap, a Night City title screen, industrial
-case badges, federal holidays, separate diary notes, and short SID feedback.
+case badges, federal holidays, and short SID feedback.
 
 ![C77 Agenda month view](assets/agenda_screenshot.png)
 
@@ -36,7 +36,6 @@ Save before unmounting, then eject the disk image cleanly.
 | Joystick port 2 / cursor keys | Move selected date |
 | Fire / Return | Inspect selected date |
 | `A` | Add appointment |
-| `J` | Open diary notes for the selected date |
 | `D` | Delete first appointment on selected date |
 | `S` | Save `AGENDA.DAT` |
 | `T` | Set current date |
@@ -45,11 +44,11 @@ Save before unmounting, then eject the disk image cleanly.
 | `Q` | Save if modified and exit |
 
 Federal holidays are calculated for the displayed year. Red day numbers are
-holidays, red markers identify appointments, cyan dots identify diary notes,
-and orange markers indicate a date containing both.
+holidays and red markers identify appointments.
 
 Press `A` from the selected-date panel to add an appointment directly to that
 date. Holiday titles are shown in the same panel.
+
 
 ## Build
 

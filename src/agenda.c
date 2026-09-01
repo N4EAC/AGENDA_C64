@@ -49,7 +49,6 @@
 #define GL_BARS 103
 
 #define MAX_EVENTS 60
-#define MAX_DIARY 39
 
 typedef struct {
     char date[9];
@@ -57,17 +56,10 @@ typedef struct {
     char note[29];
 } Event;
 
-typedef struct {
-    char date[9];
-    char note[29];
-} Diary;
-
 extern void __fastcall__ install_graphics(void);
 
 static Event events[MAX_EVENTS];
-static Diary diary[MAX_DIARY];
 static unsigned char event_count;
-static unsigned char diary_count;
 static unsigned char dirty;
 static unsigned int year = 2026;
 static unsigned char month = 8;
@@ -303,20 +295,6 @@ static unsigned char event_on(unsigned char d) {
     return 0;
 }
 
-static unsigned char diary_on(unsigned char d) {
-    char date[9]; unsigned char i;
-    make_date(date,year,month,d);
-    for(i=0;i<diary_count;++i) if(!strcmp(diary[i].date,date)) return 1;
-    return 0;
-}
-
-static unsigned char diary_entries_on(unsigned char d) {
-    char date[9]; unsigned char i,n=0;
-    make_date(date,year,month,d);
-    for(i=0;i<diary_count;++i) if(!strcmp(diary[i].date,date)) ++n;
-    return n;
-}
-
 static unsigned char first_event_on(unsigned char d) {
     char date[9]; unsigned char i;
     make_date(date,year,month,d);
@@ -332,18 +310,15 @@ static void draw_day_cell(unsigned char d,unsigned char selected) {
     if(selected) bm_color(x,y,2,1,CYAN);
     else if(holiday_name(year,month,d)) bm_color(x,y,2,1,LTRED);
     bm_text(x,y,n,0);
-    if(event_on(d)&&diary_on(d)) { bm_color((unsigned char)(x+2),y,1,1,ORANGE); bm_char((unsigned char)(x+2),y,GL_MARK,0); }
-    else if(event_on(d)) { bm_color((unsigned char)(x+2),y,1,1,LTRED); bm_char((unsigned char)(x+2),y,GL_NODE,0); }
-    else if(diary_on(d)) { bm_color((unsigned char)(x+2),y,1,1,CYAN); bm_char((unsigned char)(x+2),y,GL_RIVET,0); }
+    if(event_on(d)) { bm_color((unsigned char)(x+2),y,1,1,LTRED); bm_char((unsigned char)(x+2),y,GL_NODE,0); }
 }
 
 static void draw_day_feed(void) {
-    unsigned char ix,row=14,dn; char n[9],digit[2]; const char* h;
+    unsigned char ix,row=14; char n[9]; const char* h;
     bm_cells(30,11,9,7,0xff); bm_color(30,11,9,7,LTGREY);
     bm_color(35,9,1,1,dirty?LTRED:CYAN); bm_char(35,9,GL_NODE,0);
     make_date(n,year,month,day); bm_text(30,11,n,1);
     h=holiday_name(year,month,day); if(h) bm_text(30,12,h,1);
-    dn=diary_entries_on(day); if(dn) { bm_text(30,13,"DIARY",1); digit[0]=(char)('0'+dn%10); digit[1]=0; bm_text(36,13,digit,1); }
     for(ix=0;ix<event_count&&row<18;++ix) if(!strcmp(events[ix].date,n)) {
         bm_text(30,row,events[ix].time,1); bm_text(30,(unsigned char)(row+1),events[ix].note,1); row+=3;
     }
@@ -422,11 +397,11 @@ static void draw_calendar(void) {
     /* Perforated lower chassis with certification and command micro-labels. */
     bm_cells(0,22,40,3,0xff);
     for(px=8;px<168;px+=8) { bm_dot(px,181,0); bm_dot(px+3,185,0); }
-    bm_text(1,22,"JOY/FIRE A EVENT J DIARY S SAVE",1);
+    bm_text(1,22,"JOY/FIRE  A EVENT  S SAVE",1);
     bm_text(1,23,"D DELETE M MONTH T TODAY L DATA",1);
     bm_color(29,22,10,2,LTGREY); bm_cells(29,22,10,2,0xff);
     bm_text(30,22,"CBM C77",1); bm_text(30,23,"FCC // CE",1);
-    bm_text(1,24,"Q EXIT // RED EVENT  CYAN DIARY",1);
+    bm_text(1,24,"Q EXIT // RED MARKER = EVENT",1);
 }
 
 static void modal(const char* title) {
@@ -502,30 +477,6 @@ static void add_event(void) {
     ++event_count; dirty=1; sfx_ok();
 }
 
-static void diary_screen(void) {
-    unsigned char i,k,row,first; char date[9]; Diary* e;
-    make_date(date,year,month,day);
-    do {
-        modal("DIARY // SELECTED DAY"); text(5,8,date,CYAN); row=10; first=255;
-        for(i=0;i<diary_count&&row<16;++i) if(!strcmp(diary[i].date,date)) {
-            if(first==255) first=i; text(4,row,diary[i].note,YELLOW); row+=2;
-        }
-        if(first==255) text(5,11,"NO DIARY NOTES",GREY);
-        text(4,18,"A ADD  D DELETE  RETURN CLOSE",GREY); k=cgetc();
-        if(k=='a'||k=='A') {
-            if(diary_count>=MAX_DIARY) { modal("DIARY FULL"); text(5,11,"DELETE AN ENTRY",LTRED); wait_key(); }
-            else {
-                e=&diary[diary_count]; strcpy(e->date,date); modal("NEW DIARY NOTE");
-                text(5,9,date,CYAN); text(5,11,"NOTE",GREY);
-                if(input_field(5,13,e->note,28)) { ++diary_count; dirty=1; sfx_ok(); }
-            }
-        } else if((k=='d'||k=='D')&&first!=255) {
-            for(i=first;i+1<diary_count;++i) diary[i]=diary[i+1];
-            --diary_count; dirty=1; sfx_ok();
-        } else break;
-    } while(1);
-}
-
 static void delete_event(void) {
     unsigned char ix=first_event_on(day),i,k;
     modal("DELETE DAY ENTRY");
@@ -574,11 +525,6 @@ static void save_data(void) {
         len=(unsigned int)strlen(events[i].time); cbm_write(2,events[i].time,len); cbm_write(2,"\r",1);
         len=(unsigned int)strlen(events[i].note); cbm_write(2,events[i].note,len); cbm_write(2,"\r",1);
     }
-    { char n[4]; itoa(diary_count,n,10); cbm_write(2,n,(unsigned int)strlen(n)); cbm_write(2,"\r",1); }
-    for(i=0;i<diary_count;++i) {
-        len=(unsigned int)strlen(diary[i].date); cbm_write(2,diary[i].date,len); cbm_write(2,"\r",1);
-        len=(unsigned int)strlen(diary[i].note); cbm_write(2,diary[i].note,len); cbm_write(2,"\r",1);
-    }
     cbm_close(2); dirty=0; text(5,14,"SAVE COMPLETE",LTGREEN); sfx_ok(); wait_key();
 }
 
@@ -590,16 +536,12 @@ static unsigned char read_line(unsigned char lfn,char* out,unsigned char max) {
 
 static void load_data(void) {
     char n[4]; unsigned char i;
-    event_count=0; diary_count=0;
+    event_count=0;
     if(cbm_open(2,8,2,"agenda.dat,s,r")!=0) return;
     if(read_line(2,today,8)!=8) strcpy(today,"20260831");
     read_line(2,n,3); event_count=(unsigned char)atoi(n); if(event_count>MAX_EVENTS) event_count=MAX_EVENTS;
     for(i=0;i<event_count;++i) {
         read_line(2,events[i].date,8); read_line(2,events[i].time,4); read_line(2,events[i].note,28);
-    }
-    if(read_line(2,n,3)) {
-        diary_count=(unsigned char)atoi(n); if(diary_count>MAX_DIARY) diary_count=MAX_DIARY;
-        for(i=0;i<diary_count;++i) { read_line(2,diary[i].date,8); read_line(2,diary[i].note,28); }
     }
     cbm_close(2);
     year=parse4(today); month=parse2(today+4); day=parse2(today+6);
@@ -659,7 +601,6 @@ int main(void) {
             refresh_dynamic();
         }
         else if(k=='a'||k=='A') { add_event(); refresh_dynamic(); }
-        else if(k=='j'||k=='J') { diary_screen(); refresh_dynamic(); }
         else if(k=='d'||k=='D') { delete_event(); refresh_dynamic(); }
         else if(k=='s'||k=='S') { save_data(); refresh_dynamic(); }
         else if(k=='t'||k=='T') { set_today(); refresh_dynamic(); }
