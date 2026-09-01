@@ -8,8 +8,8 @@ DISK := C77_AGENDA_GFX.d64
 
 all: $(DISK)
 
-$(PROGRAM): src/agenda.c src/graphics.s
-	$(CL65) -t c64 -Oirs -o $@ src/agenda.c src/graphics.s
+$(PROGRAM): src/agenda.c src/graphics.s c64-agenda.cfg
+	$(CL65) -t c64 -C c64-agenda.cfg -Oirs -o $@ src/agenda.c src/graphics.s
 
 $(DISK): $(PROGRAM)
 	PYTHONDONTWRITEBYTECODE=1 python3 tools/package_gfx.py $(PROGRAM) $@
