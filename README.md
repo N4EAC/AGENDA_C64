@@ -6,7 +6,8 @@ styled as a yellow-and-black C77 cyberpunk interface.
 Version 3.0 uses a 320x200 hires bitmap, a Night City title screen, industrial
 case badges, federal holidays, and short SID feedback.
 
-![C77 Agenda month view](assets/agenda_screenshot.png)
+<img width="1423" height="834" alt="image" src="https://github.com/user-attachments/assets/47cfa5aa-a9e6-457f-888d-309fde135592" />
+<img width="1499" height="914" alt="image" src="https://github.com/user-attachments/assets/014f1ad6-0514-41b6-8c15-7737f084b98c" />
 
 ## Editions
 
